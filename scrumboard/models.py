@@ -10,4 +10,11 @@ class Task(models.Model):
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_tasks', editable=False)
     assigned_to = models.ForeignKey(User, on_delete=models.CASCADE, related_name='assigned_tasks')
 
+    def __str__(self):
+        return f'{self.assigned_to}: {self.title} ({self.status})'
 
+
+class SubTask(models.Model):
+    task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='subtasks', editable=False)
+    title = models.CharField(max_length=100)
+    completed = models.BooleanField(default=False)
