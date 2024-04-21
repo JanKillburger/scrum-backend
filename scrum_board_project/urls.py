@@ -24,7 +24,7 @@ router = DefaultRouter()
 router.register(r'tasks', views.TaskViewSet)
 
 urlpatterns = [
-    path('api-token-auth/', obtain_auth_token),
+    path('login/', obtain_auth_token),
     path('', include(router.urls)),
     path('admin/', admin.site.urls),
 ]
