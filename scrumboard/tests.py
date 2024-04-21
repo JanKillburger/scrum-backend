@@ -68,6 +68,11 @@ class TaskViewTests(APITestCase):
                         "id": 1,
                         "title": "first subtask",
                         "completed": True
+                    },
+                    {
+                        
+                        "title": "second subtask",
+                        "completed": False
                     }
                 ]
             },
@@ -75,6 +80,7 @@ class TaskViewTests(APITestCase):
         )
         self.assertEqual(update_response.status_code, status.HTTP_200_OK)
         self.assertEqual(SubTask.objects.get(pk=1).completed, True)
+        self.assertEqual(SubTask.objects.count(), 2)
         delete_response = client.put(
             "/tasks/1/",
             {
