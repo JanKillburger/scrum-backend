@@ -22,6 +22,7 @@ from scrumboard import views
 
 router = DefaultRouter()
 router.register(r'tasks', views.TaskViewSet)
+router.register(r'users', views.UserViewSet)
 
 urlpatterns = [
     path('login/', obtain_auth_token),

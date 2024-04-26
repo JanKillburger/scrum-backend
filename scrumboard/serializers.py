@@ -1,6 +1,12 @@
+from django.contrib.auth.models import User
 from rest_framework import serializers
 from . import models
 
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["username", "first_name", "last_name", "id"]
 
 class SubTaskSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(required=False)
@@ -9,15 +15,27 @@ class SubTaskSerializer(serializers.ModelSerializer):
         model = models.SubTask
         fields = "__all__"
 
-
-class TaskSerializer(serializers.ModelSerializer):
-    subtasks = SubTaskSerializer(many=True, required=False)
+class TaskResponseSerializer(serializers.ModelSerializer):
+    subtasks = SubTaskSerializer(many=True)
+    created_by = UserSerializer(read_only=True)
+    assigned_to = UserSerializer(read_only=True)
 
     class Meta:
         model = models.Task
         fields = "__all__"
 
+class TaskSerializer(serializers.ModelSerializer):
+    subtasks = SubTaskSerializer(many=True, required=False)
+    
+    class Meta:
+        model = models.Task
+        fields = "__all__"
+
+    def to_representation(self, instance):
+        return TaskResponseSerializer(context=self.context).to_representation(instance)
+
     def create(self, validated_data):
+        print(validated_data)
         if "subtasks" in validated_data.keys():
             subtasks_data = validated_data.pop("subtasks")
         task = models.Task.objects.create(**validated_data)
