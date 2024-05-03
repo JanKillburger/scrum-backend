@@ -2,21 +2,21 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 from . import models
 
+
 class RegisterUserSerializer(serializers.ModelSerializer):
+    token = serializers.CharField(required=False)
+
     class Meta:
         model = User
-        fields = ["username", "password"]    
-        extra_kwargs = {"password": {'write_only': True}}
+        fields = ["username", "password", "token"]
+        extra_kwargs = {"password": {"write_only": True}}
 
-    def create(self, validated_data):
-        user = User.objects.create_user(**validated_data)
-
-        return user
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["username", "first_name", "last_name", "id"]
+
 
 class SubTaskSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(required=False)
@@ -24,6 +24,7 @@ class SubTaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.SubTask
         fields = "__all__"
+
 
 class TaskResponseSerializer(serializers.ModelSerializer):
     subtasks = SubTaskSerializer(many=True)
@@ -34,9 +35,10 @@ class TaskResponseSerializer(serializers.ModelSerializer):
         model = models.Task
         fields = "__all__"
 
+
 class TaskSerializer(serializers.ModelSerializer):
     subtasks = SubTaskSerializer(many=True, required=False)
-    
+
     class Meta:
         model = models.Task
         fields = "__all__"
@@ -63,10 +65,11 @@ class TaskSerializer(serializers.ModelSerializer):
 
     def handle_subtasks(self, task, validated_subtasks_data):
         """Create, update and delete subtasks.
-        
-            Create new subtask if 'id' key is not provided.
-            Update subtasks for which 'id' key is provided.
-            Delete subtasks if they are not provided."""
+
+        Create new subtask if 'id' key is not provided.
+        Update subtasks for which 'id' key is provided.
+        Delete subtasks if they are not provided in the request but exist in the database.
+        """
         db_subtasks = task.subtasks.all()
         items_to_update = {}
         items_to_create = []
